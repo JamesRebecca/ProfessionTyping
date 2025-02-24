@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>沈老师打字游戏</title>
+    <style>
+        /* 样式设计 */
+        body {
+            background-color: #f5f5dc; /* 奶白色背景 */
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        #sentence-container {
+            margin-bottom: 20px;
+        }
+
+        #sentence {
+            font-size: 20px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+        }
+
+        #input-box {
+            width: 80%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        #confirm-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #confirm-btn:hover {
+            background-color: #45a049;
+        }
+
+        #result-container {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        #result, #time {
+            font-size: 18px;
+            color: #333;
+        }
+
+        #result {
+            white-space: pre-line; /* 保留换行符 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 标题 -->
+        <h1>沈老师打字游戏 ShenLaoShi Typing Competition</h1>
+
+        <!-- 当前句子显示 -->
+        <div id="sentence-container">
+            <p id="sentence"></p>
+        </div>
+
+        <!-- 输入框和确认按钮 -->
+        <div class="input-container">
+            <input type="text" id="input-box" placeholder="请输入中文翻译" autocomplete="off" onpaste="return false;" oncopy="return false;" oncut="return false;">
+            <button id="confirm-btn">确认</button>
+        </div>
+
+        <!-- 结果和时间显示 -->
+        <div id="result-container">
+            <p id="result"></p>
+            <p id="time"></p>
+        </div>
+    </div>
+
+    <script>
+        // 游戏逻辑
+        const sentences = [
+            "What job do you want to do in the future?",
+            "I want to become an engineer in the future.",
+            "Would you rather be a nurse or doctor in the future?",
+            "I would rather be a firefighter in the future.",
+            "Excuse me, do you have any family members who is an athlete?",
+            "I do not have any family members who is an athlete.",
+            "My personality test said I am good at being a artist.",
+            "It is not the same compared to what I want to do.",
+            "Because I want to be just like Jack Ma, be a businessman."
+        ];
+
+        const translations = [
+            "你以后想做什么工作/职业？",
+            "我以后想做工程师。",
+            "你以后更想做护士还是医生？",
+            "我以后更想做消防员。",
+            "请问，你有家人是运动员吗？",
+            "我没有家人是运动员。",
+            "我的性格考试说我擅长做美术家。",
+            "和我想做的不一样。",
+            "因为我想像Jack Ma一样做商人。"
+        ];
+
+        let currentSentenceIndex = 0;
+        let startTime;
+        let endTime;
+        let userAnswers = []; // 存储玩家的答案
+
+        const sentenceElement = document.getElementById("sentence");
+        const inputBox = document.getElementById("input-box");
+        const confirmBtn = document.getElementById("confirm-btn");
+        const resultElement = document.getElementById("result");
+        const timeElement = document.getElementById("time");
+
+        // 初始化游戏
+        function startGame() {
+            startTime = new Date(); // 记录开始时间
+            showNextSentence();
+        }
+
+        // 显示下一个句子
+        function showNextSentence() {
+            if (currentSentenceIndex < sentences.length) {
+                sentenceElement.textContent = sentences[currentSentenceIndex];
+                inputBox.value = "";
+                resultElement.textContent = "";
+            } else {
+                endGame(); // 如果所有句子完成，结束游戏
+            }
+        }
+
+        // 检查答案
+        function checkAnswer() {
+            const userTranslation = inputBox.value.trim();
+            userAnswers.push(userTranslation); // 保存玩家的答案
+
+            currentSentenceIndex++;
+            showNextSentence();
+        }
+
+        // 结束游戏
+        function endGame() {
+            endTime = new Date(); // 记录结束时间
+            const timeDiff = (endTime - startTime) / 1000; // 计算用时（秒）
+            const minutes = Math.floor(timeDiff / 60);
+            const seconds = Math.floor(timeDiff % 60);
+
+            // 显示所有题目、玩家答案和正确答案
+            let resultText = "游戏结束！以下是所有题目、你的答案和正确答案：\n\n";
+            for (let i = 0; i < sentences.length; i++) {
+                resultText += `题目：${sentences[i]}\n你的答案：${userAnswers[i]}\n正确答案：${translations[i]}\n\n`;
+            }
+
+            resultElement.textContent = resultText;
+            timeElement.textContent = `用时：${minutes}分${seconds}秒`;
+        }
+
+        // 绑定按钮点击事件
+        confirmBtn.addEventListener("click", checkAnswer);
+
+        // 绑定回车键事件
+        inputBox.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                checkAnswer();
+            }
+        });
+
+        // 禁止复制粘贴
+        inputBox.addEventListener("paste", function (e) {
+            e.preventDefault();
+        });
+
+        inputBox.addEventListener("copy", function (e) {
+            e.preventDefault();
+        });
+
+        inputBox.addEventListener("cut", function (e) {
+            e.preventDefault();
+        });
+
+        // 启动游戏
+        startGame();
+    </script>
+</body>
+</html>
